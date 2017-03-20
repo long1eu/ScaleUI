@@ -1,12 +1,8 @@
 package eu.long1.scaleui;
 
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SeekBar;
@@ -15,8 +11,9 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static eu.long1.scaleui.AppClass.DPI;
+import static eu.long1.scaleui.AppClass.writeScale;
 import static eu.long1.scaleui.Helper.findClosest;
-import static eu.long1.scaleui.Helper.restart;
 
 public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
@@ -27,38 +24,20 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     public static final int SCALE_XXLARGE = 175;
     public static final int SCALE_XXXLARGE = 200;
 
-    public static final String SCALE_VALUE = "SCALE_VALUE";
-
     @BindView(R.id.seekBar) SeekBar seekBar;
     @BindView(R.id.seekBarText) TextView seekBarText;
-    private SharedPreferences preferences;
-    private float currentScale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        preferences = getPreferences(MODE_PRIVATE);
-        currentScale = preferences.getFloat(SCALE_VALUE, SCALE_NORMAL / 100f);
-
 
         seekBar.setOnSeekBarChangeListener(this);
-        seekBar.setProgress((int) (currentScale * 100));
-        setScale(currentScale);
-        setProgress(currentScale);
-    }
+        seekBar.setProgress((int) (DPI * 100));
+        setProgress(DPI);
 
-    @SuppressWarnings("deprecation")
-    private void setScale(float screenRatio) {
-        Resources resources = getResources();
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-        Configuration configuration = resources.getConfiguration();
-        configuration.densityDpi = (int) (metrics.densityDpi * screenRatio);
-        metrics.scaledDensity = metrics.scaledDensity * screenRatio;
-        resources.updateConfiguration(configuration, resources.getDisplayMetrics());
+        getFragmentManager().beginTransaction().add(R.id.fragmentPlace, new FragmentExample()).commit();
     }
 
     @Override
@@ -72,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     private void setProgress(float scaleRatio) {
         String value = "x" + scaleRatio;
         seekBarText.setText(value);
-        currentScale = scaleRatio;
+        DPI = scaleRatio;
     }
 
     @Override
@@ -86,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements SeekBar.OnSeekBar
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.save:
-                preferences.edit().putFloat(SCALE_VALUE, currentScale).commit();
-                restart(this);
+                writeScale();
+                recreate();
                 break;
         }
         return true;
