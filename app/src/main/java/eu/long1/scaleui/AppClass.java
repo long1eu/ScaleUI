@@ -2,63 +2,48 @@ package eu.long1.scaleui;
 
 import android.app.Application;
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import java.io.BufferedReader;
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 
 public class AppClass extends Application {
 
-    public static float DPI;
+    private static final String FILE_NAME = "scaleFile.txt";
+    public static float sScaleRatio;
 
-    private static String scaleDataFileLocation;
-
-    public static void writeScale() {
+    public static void saveScale(Context context) {
         try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(scaleDataFileLocation));
-            outputStreamWriter.write(DPI + "");
-            outputStreamWriter.close();
+            File scaleDataFileLocation = new File(ContextCompat.getDataDir(context), FILE_NAME);
+            FileUtils.writeStringToFile(scaleDataFileLocation,
+                    String.valueOf(sScaleRatio),
+                    Charset.defaultCharset());
         } catch (IOException e) {
             Log.e("Exception", "File write failed: " + e.toString());
         }
     }
 
-    private static String readScale() {
-        String ret = "";
-        try {
-            FileInputStream inputStream = new FileInputStream(scaleDataFileLocation);
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            String receiveString;
-            StringBuilder stringBuilder = new StringBuilder();
-
-            while ((receiveString = bufferedReader.readLine()) != null) {
-                stringBuilder.append(receiveString);
-            }
-
-            inputStream.close();
-            ret = stringBuilder.toString();
-        } catch (FileNotFoundException e) {
-            Log.e("login activity", "File not found: " + e.toString());
-        } catch (IOException e) {
-            Log.e("login activity", "Can not read file: " + e.toString());
-        }
-
-        return ret;
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
-        scaleDataFileLocation = new File(getApplicationInfo().dataDir, "scaleFile.txt").getAbsolutePath();
-        String scale = readScale();
-        DPI = (scale.isEmpty() ? 1 : Float.parseFloat(scale));
-        Log.d("Ap onCreate", DPI + "");
+        readScale(this);
+    }
+
+    private void readScale(Context context) {
+        try {
+            File scaleDataFileLocation = new File(ContextCompat.getDataDir(context), FILE_NAME);
+            String scale = FileUtils.readFileToString(scaleDataFileLocation, Charset.defaultCharset());
+
+            sScaleRatio = (scale.isEmpty() ? 1 : Float.parseFloat(scale));
+        } catch (IOException e) {
+            Log.e("Exception", "Can not read file: " + e.toString());
+
+            sScaleRatio = 1;
+            saveScale(this);
+        }
     }
 }

@@ -7,7 +7,7 @@ import android.content.res.Resources;
 import android.util.DisplayMetrics;
 
 import static android.os.Build.VERSION.SDK_INT;
-import static eu.long1.scaleui.AppClass.DPI;
+import static eu.long1.scaleui.AppClass.sScaleRatio;
 
 public class ScaledContextWrapper extends ContextWrapper {
 
@@ -21,8 +21,8 @@ public class ScaledContextWrapper extends ContextWrapper {
         Configuration configuration = resources.getConfiguration();
         DisplayMetrics metrics = resources.getDisplayMetrics();
 
-        configuration.densityDpi = (int) (metrics.densityDpi * DPI);
-        configuration.fontScale = DPI;
+        configuration.densityDpi = (int) (metrics.densityDpi * sScaleRatio);
+        configuration.fontScale = sScaleRatio;
 
         if (SDK_INT > 17) {
             context = context.createConfigurationContext(configuration);

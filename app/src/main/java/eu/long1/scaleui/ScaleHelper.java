@@ -1,14 +1,15 @@
 package eu.long1.scaleui;
 
-import android.app.Activity;
-import android.content.Intent;
-
 import java.util.ArrayList;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static eu.long1.scaleui.MainActivity.*;
+class ScaleHelper {
 
-class Helper {
+    private static final int SCALE_SMALL = 75;
+    private static final int SCALE_NORMAL = 100;
+    private static final int SCALE_LARGE = 125;
+    private static final int SCALE_XLARGE = 150;
+    private static final int SCALE_XXLARGE = 175;
+    private static final int SCALE_XXXLARGE = 200;
 
     private static ArrayList<Integer> numbers = new ArrayList<>();
 
@@ -33,13 +34,4 @@ class Helper {
         }
         return numbers.get(index);
     }
-
-    static void restart(Activity activity) {
-        Intent intent = new Intent(activity, MainActivity.class);
-        intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-        activity.startActivity(intent);
-        activity.finish();
-        Runtime.getRuntime().exit(0);
-    }
-
 }
